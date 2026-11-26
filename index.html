@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f1f4f8">
+    <meta name="description" content="A real-time, multiplayer math tug-of-war game.">
+    <title>Tug of War — Math Match</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Tug of War home">
+        <span class="brand-mark" aria-hidden="true">↔</span>
+        <span>TUG<span class="brand-light">OF</span>WAR</span>
+      </a>
+      <div id="connection-indicator" class="connection-indicator" hidden>
+        <span class="connection-dot"></span>
+        <span id="connection-label">Connecting</span>
+      </div>
+    </header>
+
+    <main id="app" class="app-shell">
+      <section id="home-screen" class="screen home-screen">
+        <div class="hero">
+          <span class="eyebrow">MATH · TEAMWORK · COMPETITION</span>
+          <h1>Ready, set,<br><span>pull!</span></h1>
+          <p>Two players. One rope. Solve math questions to pull your team to victory.</p>
+        </div>
+        <div class="mode-grid">
+          <article class="mode-card monitor-card">
+            <div class="mode-icon" aria-hidden="true">▣</div>
+            <p class="card-kicker">MONITOR · PROJECTOR</p>
+            <h2>Create the room</h2>
+            <p>Start here on the projector. This screen hosts the room and shows the live game.</p>
+            <button id="create-room" class="button button-primary">Create monitor room</button>
+          </article>
+          <article class="mode-card player-card">
+            <div class="mode-icon" aria-hidden="true">⌁</div>
+            <p class="card-kicker">PLAYER 1 &amp; PLAYER 2 · PHONES</p>
+            <h2>Join as a player</h2>
+            <p>Enter the room code shown on the monitor and choose your team.</p>
+            <label class="field-label" for="room-code">Room code</label>
+            <input id="room-code" class="text-input room-code-input" maxlength="6" autocomplete="off" placeholder="ABC123" aria-label="Room code">
+            <label class="field-label" for="player-name">Your name</label>
+            <input id="player-name" class="text-input" maxlength="18" autocomplete="name" placeholder="Player">
+            <div class="team-picker" role="group" aria-label="Choose a team">
+              <button class="team-choice blue-choice selected" data-team="blue" aria-pressed="true">Blue team</button>
+              <button class="team-choice red-choice" data-team="red" aria-pressed="false">Red team</button>
+            </div>
+            <button id="join-room" class="button button-dark">Join game</button>
+          </article>
+        </div>
+        <p id="home-error" class="error-message" role="alert" hidden></p>
+        <p class="hosting-note">Works on GitHub Pages · No accounts required · Keep the monitor tab open</p>
+      </section>
+
+      <section id="monitor-screen" class="screen game-screen" hidden>
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">ROOM HOST · PROJECTOR VIEW</p>
+            <h1>Room <span id="monitor-room-code" class="room-code">------</span></h1>
+            <p class="room-instructions">Players: enter this room code on your phones and choose opposite teams.</p>
+          </div>
+          <button id="end-room" class="button button-quiet">End room</button>
+        </div>
+        <div class="score-header">
+          <div class="score-team blue-text"><span class="team-caption">BLUE TEAM</span><strong id="blue-score">0</strong></div>
+          <div id="game-status" class="status-pill">Waiting for players</div>
+          <div class="score-team red-text"><strong id="red-score">0</strong><span class="team-caption">RED TEAM</span></div>
+        </div>
+        <div class="arena" aria-label="Tug-of-war game board">
+          <div class="arena-top">
+            <div class="team-player blue-player"><span class="player-avatar">B</span><span id="blue-player-name">Waiting for player</span></div>
+            <div class="arena-divider"><span>VS</span></div>
+            <div class="team-player red-player"><span class="player-avatar">R</span><span id="red-player-name">Waiting for player</span></div>
+          </div>
+          <div class="rope-area">
+            <div class="rope-line"></div>
+            <div class="rope-center"></div>
+            <div id="rope-marker" class="rope-marker" style="--rope-position: 50%">
+              <span aria-hidden="true">⚑</span>
+            </div>
+          </div>
+          <div class="pull-track"><span class="track-blue"></span><span class="track-red"></span><span class="track-center"></span></div>
+          <div class="question-board">
+            <div class="monitor-question blue-question"><span>BLUE</span><strong id="blue-question">Ready?</strong></div>
+            <div class="monitor-question red-question"><span>RED</span><strong id="red-question">Ready?</strong></div>
+          </div>
+          <div id="monitor-message" class="monitor-message">Share the room code with both players.</div>
+        </div>
+        <div class="monitor-controls">
+          <button id="start-game" class="button button-primary" disabled>Start game</button>
+          <span id="player-count" class="player-count">0 of 2 players connected</span>
+        </div>
+      </section>
+
+      <section id="player-screen" class="screen player-screen" hidden>
+        <div class="player-heading">
+          <div>
+            <p class="eyebrow">ROOM <span id="player-room-code">------</span></p>
+            <h1 id="player-welcome">You're on the team!</h1>
+          </div>
+          <button id="leave-room" class="button button-quiet">Leave</button>
+        </div>
+        <div id="player-waiting" class="waiting-card">
+          <div class="waiting-spinner" aria-hidden="true"></div>
+          <h2>Waiting for the other player</h2>
+          <p>The host will start the game when both teams are ready.</p>
+        </div>
+        <div id="player-play-area" class="play-card" hidden>
+          <div class="player-score-row">
+            <span id="player-team-label" class="team-caption">BLUE TEAM</span>
+            <span class="player-score">Your team: <strong id="player-score">0</strong></span>
+          </div>
+          <div class="player-question-wrap">
+            <span class="question-label">SOLVE THIS</span>
+            <div id="player-question" class="player-question" aria-live="polite">—</div>
+          </div>
+          <div id="answer-display" class="answer-display" aria-live="polite">Enter your answer</div>
+          <div class="keypad" role="group" aria-label="Answer keypad">
+            <button class="key" data-key="1">1</button><button class="key" data-key="2">2</button><button class="key" data-key="3">3</button>
+            <button class="key" data-key="4">4</button><button class="key" data-key="5">5</button><button class="key" data-key="6">6</button>
+            <button class="key" data-key="7">7</button><button class="key" data-key="8">8</button><button class="key" data-key="9">9</button>
+            <button class="key key-clear" data-key="clear" aria-label="Clear answer">⌫</button><button class="key" data-key="0">0</button><button class="key key-submit" data-key="submit" aria-label="Submit answer">✓</button>
+          </div>
+          <p id="player-feedback" class="player-feedback" aria-live="polite">Get it right to pull the rope!</p>
+        </div>
+        <div id="player-finished" class="waiting-card finished-card" hidden>
+          <div class="finished-icon" aria-hidden="true">🏆</div>
+          <h2 id="winner-message">Game over!</h2>
+          <p>Look at the monitor for the final score.</p>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
